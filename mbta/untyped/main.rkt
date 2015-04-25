@@ -3,44 +3,61 @@
 ;; stress testing run-t on 100 look ups, plus 5 [dis|en]ables
 
 ;; ===================================================================================================
-(require "run-t.rkt")
+(require "run-t.rkt"
+         profile)
 
 ;; Nat -> Void 
 ;; run the stress test n times
 (define (stress-test n)
   ;; String String Nat -> [Listof String]
-  (define (path from to n) 
-    (for/list ([_ (in-range n)]) 
-      (printf "from ~a to ~a\n" from to)
-      (read-to EOM)))
+  (define (path from to)
+    (format "from ~a to ~a" from to))
   
   ;; Symbol String -> Void
-  (define (able dis-en s) 
-    (printf "~aable ~a\n" dis-en s)
-    (read-to EOM))
+  (define (enable s)
+    (format "enable ~a" s))
+
+  (define (disable s)
+    (format "disable ~a" s))
+  
   
   (for ((_i (in-range n)))
     (define-values (in out) (make-pipe))
     (define-values (_in _out) (make-pipe))
     (define c (make-custodian))
     (parameterize ([current-custodian c])
-      (define _server 
-        (thread
-         (lambda ()
-           (let loop ()
-             (run-t in _out)
-             (loop)))))
+      ;; (define _server 
+      ;;   (thread
+      ;;    (lambda ()
+      ;;      (let loop ()
+      ;;        (run-t in _out)
+      ;;        (loop)))))
       (parameterize ([current-input-port _in]
                      [current-output-port out])
-        (assert (path "Airport" "Northeastern" 30))
-        (assert (able "dis" "Government"))
-        (assert (path "Airport" "Northeastern" 10))
-        (assert (able "en" "Government"))
-        (assert (path "Airport" "Harvard Square" 20))
-        (assert (able "dis" "Park"))
-        (assert (path "Northeastern" "Harvard Square" 20))
-        (assert (able "en" "Park"))
-        (assert (path "Northeastern" "Harvard Square" 20))))
+        (define (run-query str)
+          (run-t in _out)
+          (displayln str)
+          (read-to EOM))
+
+        ;; (run-t in _out)
+        (run-query (path "Airport" "Northeastern"))
+        (run-query (disable "Government"))
+        ;; (read-to EOM)
+        ;; (error "hi")
+        ;; (error (read-to EOM))
+        ;; (assert (path "Airport" "Northeastern" 30))
+        ;; (thread-wait)
+        ;; (assert (able "dis" "Government"))
+        ;; (assert (path "Airport" "Northeastern" 10))
+        ;; (assert (able "en" "Government"))
+        ;; (assert (path "Airport" "Harvard Square" 20))
+        ;; (assert (able "dis" "Park"))
+        ;; (assert (path "Northeastern" "Harvard Square" 20))
+        ;; (assert (able "en" "Park"))
+        ;; (assert (path "Northeastern" "Harvard Square" 20))
+                                        ;(sleep 10)
+        ))
+    ;; (thread-wait)
     (custodian-shutdown-all c)))
 
 (define-syntax assert
@@ -63,4 +80,4 @@
       '()
       (cons next (read-to x))))
 
-(time (stress-test 10))
+(profile (stress-test 1) #:threads #t)
