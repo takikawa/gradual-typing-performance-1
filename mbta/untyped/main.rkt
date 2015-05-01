@@ -63,4 +63,7 @@
       '()
       (cons next (read-to x))))
 
-(time (stress-test 10))
+(define v (make-vector 10 0))
+(stress-test 10)
+(vector-set-performance-stats! v)
+v
