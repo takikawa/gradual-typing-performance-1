@@ -63,7 +63,11 @@
       '()
       (cons next (read-to x))))
 
+;(require/typed racket/base
+;  [vector-set-performance-stats! (-> (Vectorof Natural) Void)])
+;(: v (Vectorof Natural))
 (define v (make-vector 10 0))
 (stress-test 10)
 (vector-set-performance-stats! v)
 v
+;(time (stress-test 10))
