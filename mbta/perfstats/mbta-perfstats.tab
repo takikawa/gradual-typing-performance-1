@@ -1,0 +1,17 @@
+Config	Avg. Context Switches	Typed Modules
+0000	1709984.15	
+0001	1674726.45	t-view.rkt
+0010	1778721.4	t-graph.rkt
+0011	1767467.05	t-graph.rkt,t-view.rkt
+0100	1417438.4	run-t.rkt
+0101	1412770.6	run-t.rkt,t-view.rkt
+0110	1534912.9	run-t.rkt,t-graph.rkt
+0111	1552491.1	run-t.rkt,t-graph.rkt,t-view.rkt
+1000	1321761.45	main.rkt
+1001	1335930.3	main.rkt,t-view.rkt
+1010	1408462.15	main.rkt,t-graph.rkt
+1011	1385563.05	main.rkt,t-graph.rkt,t-view.rkt
+1100	1255031.25	main.rkt,run-t.rkt
+1101	1262299.25	main.rkt,run-t.rkt,t-view.rkt
+1110	1320364.9	main.rkt,run-t.rkt,t-graph.rkt
+1111	1303178.8	main.rkt,run-t.rkt,t-graph.rkt,t-view.rkt
