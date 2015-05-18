@@ -1,0 +1,240 @@
+\documentclass{article}
+
+\input{def}
+
+\begin{document}
+\section{Appendix B: Experiment \& Statistical Background}
+\subsection{Evaluating Gradual Type Systems}
+There are three broad measures for judging gradual type systems.
+\begin{enumerate}
+\item \textbf{Expressiveness:} Which features / idioms from the untyped language can be expressed in the typed language?
+\item \textbf{Soundness:} How strong are the guarantees made by the type system?
+\item \textbf{Performance:} To what extent does adding types improve the performance of the codebase?
+\end{enumerate}
+Previous research focused on building expressive and sound gradual type systems, leaving performance for future work.
+Future work is now.
+
+We consider general performance goals for any gradual type system and an experiment for verifying these goals.
+A key feature of our experiment is that it scales linearly with the number of typed modules in the program, and thus may be useful for evaluating micro gradual type systems as well.
+The results in \sec{todo} gives some empirical support for this claim.
+
+
+\subsection{General Performance Goals}
+The fundamental assumption of a gradual type system is that programmers using an untyped language will realize some benefits from type annotations.
+Regarding performance, type annotations should enable more aggressive compiler optimizations.
+A project team should see a performance boost after fully annotating their project.
+
+In practice, type-driven optimizations are somewhat counteracted by dynamic checks at the boundary between the typed code and untyped library code.
+Often the programmer has no control over this library code, so one goal of a gradual type system should be to ensure that this overhead is minimal.
+Put clearly, our first performance goal is: \emph{a fully-typed program should run faster than its untyped counterpart}.
+
+The key benefit of a gradual type system as opposed to a typed language is that the migration from untyped to typed code is not monolithic.
+Programmers can add types to any combination of modules at a given time, leaving the rest untyped, and still run their code in this intermediate state.
+But these intermediate configurations, although runnable, may introduce a high-overhead boundary between typed and untyped code.
+We argue that in a performant gradual type system, \emph{a significant percentage of all possible intermediate configurations should have good performance}.
+
+Related to this second goal, and more in tune with the needs of practitioners, we argue that a significant percentage of paths from the fully-untyped project to a fully-typed version should have good performance at each configuration in the path.
+In other words, there should be many ways of adding types one module at a time without losing performance at any step.
+Despite this hope, our experiments thus far have led us to consider two weaker approximations.
+First, we divide the criteria of ``good performance'' into two levels: \emph{release-ready} and \emph{development-ready}.
+The next section offers a concrete definition of these terms, but intuitively they should correspond to deployable code and code acceptable to commit to a development branch.
+Second, we relax the definition of a path from ``adding types one module at a time'' to a weaker variant that allows adding types to more than one module at once.
+These alterations in mind, we arrive at our third performance goal: \emph{a significant percentage of realistic paths from fully-untyped to fully-typed should have at most moderate (i.e., development-ready) performance degradation at any configuration in the path}.
+
+To summarize, we have three broad performance goals:
+\begin{itemize}
+\item A fully-annotated program should run faster than its untyped counterpart
+\item A significant percentage of all combinations of typed and untyped modules should perform well compared to the untyped program.
+\item A significant percentage of all reasonable paths from untyped to typed should perform well at \emph{each configuration} along the path.
+\end{itemize}
+The next section makes these general requirements specific.
+
+
+\subsection{Concrete Performance Goals}
+Required steps to turn the above guidelines to a scientific experiment:
+\begin{enumerate}
+\item[0.]
+  Choose the language of discourse.
+  A gradual type system for Python is not directly comparable to a gradual type system for Racket, nor to a gradual type system for JavaScript.
+  Tools for different languages must be evaluated by different standards.
+\item[1.]
+  Define the meaning of ``fully-typed''.
+  For macro gradual typing this is fairly straightforward but for the question of untyped libraries.
+  Some libraries may be in the developers' control to annotate, but that may require an order of magnitude more work than the original goal of adding types to one project.
+  For micro gradual typing, one must decide whether it suffices to annotate each function declaration, or whether each variable reference requires an explict type annotation.
+\item[2.]
+  Decide what level of overhead over the untyped performance qualifies as release-ready.
+  A reasonable definition for this bar is zero overhead.
+\item[3.]
+  Decide what level of overhead qualifies as development ready.
+  In other words, at which point does overhead from gradual typing make elements of the development process (such as running the unit test suite) impractical.
+\item[4.]
+  Decide an appropriate ``unit of work'' for paths from untyped to typed.
+  As noted above, adding types by module may be too fine a measure to compare gradual type systems.
+  Comparing paths given freedom to type a few modules at a time, or setting an upper limit on lines of code annotated, may provide more meaningful comparisons.
+\end{enumerate}
+
+We have evaluated a gradual type system for Racket.
+The choices we made are:
+\begin{enumerate}
+\item
+  The definition of ``fully-typed'' includes as many library dependencies as possible.
+  This means that for some projects, we extracted the portions of library code they depended on and included these extra modules in the benchmark.
+\item
+  Release-ready overhead is (generously) defined as 2 times slower than untyped.
+\item
+  Development-ready overhead is defined as 4 times slower than untyped.
+\item
+  \todo{choose a unit of work}.
+  Our experiments use this as a baseline for comparisons and additionally measure paths with slightly more and slightly less restrictive units of work.
+\end{enumerate}
+
+
+\subsection{Statistical Methods}
+For small projects (fewer than 15 modules), it may be possible to comprehensively test the performance criteria listed above.
+That is, the experimenter can create and collect data for each of the $2^N$ configurations obtained by adding types to a subset of the $N$ modules in the project.
+From this data it is straightforward to measure the cost of paths and draw conclusions about the performance of the gradual type system.
+This exponential factor, however, makes larger studies unrealistic.
+Although software projects of 30 or 100 modules are relatively common, comprehensively testing even $2^{20}$ samples is infeasible.
+Instead we use random sampling to approximate the results.
+
+Drawing independent, random samples is easy to do in our setting, but picking an appropriate sample size for the heterogenous space of configurations we sample over is not straightforward.
+We obviously cannot use a sample size proportional to the underlying population size, so instead we first choose an estimator and confidence interval, then solve for sample size.
+
+\subsubsection{Estimating a Proportion}
+Let $S$ denote the sample size we seek to derive.
+To determine the proportion of configurations with acceptable performance overhead, we use the estimator $\hat{x} = X / S$ where $X$ is the number of samples with acceptable overhead.
+Given independent samples, this estimator has a binomial distribution so the worst-case variance is $0.25 / S$.
+Using the Wald method~\cite{todo}, the 95\% confidence interval is within $\pm 2\sqrt{0.25 / S}$ of the estimator $\hat{x}$.
+Arbitrarily choosing a confidence interval of $\pm 5\%$ times our estimator and using the formula~\cite{todo} $4\sqrt{0.25 / S} = 1 / (2 * 5)$ we solve to get $S = 400$ as the required sample size.
+
+\subsubsection{Estimating a Mean}
+While not directly related to our above criteria, a second useful statistic is the population mean.
+For a $95\%$ confidence interval of width $\pm 5\%$ the sample mean, the sample size $S$ for an infinitely large population assuming worst-case variance is $S = \frac{1.96^2 0.5^2}{0.05^2}$~\cite{todo}.
+Increasing the interval width greatly decreases the number of samples required, but we choose $5\%$ and a samples size of about 360 draws.
+Note that this formula relies on the classical Central Limit Theorem~\cite{todo}, which roughly states that the means of sufficiently large independent samples are normally distributed around the true mean of the underlying population.
+
+\subsubsection{Sampling Protocol}
+Our protocol for drawing independent sample configurations is very simple.
+Supposing $N$ modules in the project, assign each of the $2^N$ configurations a unique natural number.
+We do this by assigning each of the $N$ modules an index and enumerating binary strings where the $i$-th digit is $1$ iff the module assigned index $i$ is typed.
+Then sample without replacement from the space of $2^N$ choices to give each configuration an equal probability of being sampled.
+
+We can sample paths using a similar enumeration protocol, but a simpler scheme is to do a random walk of the lattice starting from the untyped node.
+At each step, randomly choose one of the possible next configurations.
+Each alternative leads to an equal number of paths in the lattice, so this method fairly chooses one path out of all possibilities.
+\todo{argue correctness a little more. what happens with lines-of-code lattices?}
+
+\subsubsection{Testing Configurations}
+A final point, which is important even in comprehensive testing, is how to measure the runtime of a single configuration.
+Following the advice of prior work, we run a single throwaway build and then average the running times of the next 50 samples.
+The throwaway build helps address outliers to do CPU caching\textemdash in particular the caching done by the Racket virtual machine~\cite{todo}\textemdash and the law of large numbers implies that our measurements should be fairly stable after 30 measurements.
+Note that 30 rather than 300 samples are sufficient because the underlying distribution is homogenous: running times of a single configuration should be approximately the same, as opposed to running times of any two configurations.
+
+\subsubsection{Summary}
+To summarize our sampling protocol:
+\begin{enumerate}
+\item Choose a confidence level and interval for measurements.
+  We chose a $95\%$ confidence level and an interval of $\pm 5\%$ around the sample.
+\item Derive a sample size $S_1$ from the chosen confidence parameters.
+  We derive $S_1 = 400$.
+\item Choose a sample size $S_2 \ge 30$ for testing individual configurations.
+  We remark that although 30 is probably suitable, error between the t and normal distributions is still quite large at 30~\cite{todo}.
+\item Enumerate the gradually-typed configurations and divide them into meaningful subsets.
+  We use the aforementioned binary enumeration and examine $N-1$ subsets: the space of all gradually-typed configurations and the spaces of all configurations with exactly $i$ typed modules, for $i \in \{1 \ldots N-1\}$.
+\item For each subset, draw $S_1$ configurations and infer the mean running time for each.
+  From these means, derive an estimate for the proportion of efficient configurations, the subset mean, and any other desired statistics.
+  Be sure to report the sample variance and standard error \todo{say why}.
+\item Draw $S_1$ paths and compute statistics for each by measuring the running time of each configuration along each path.
+\end{enumerate}
+If, after following this protocol, the confidence intervals of two gradual type systems do not overlap, we may conclude that one is more performant than the other by a statistically significant margin.
+\todo{other things to consider before reaching conclusion?}
+
+% TODO
+% - delta method to compute median?
+%   http://stats.stackexchange.com/questions/45124/central-limit-theorem-for-sample-medians
+% - sample size
+%   http://www.sciencedirect.com/science/article/pii/019724569090005M
+% - wald method citation
+
+% \subsubsection*{Arithmetic Mean}
+% The familiar $\displaystyle\frac{\Sigma x_i}{|x_i|}$
+
+% \subsubsection*{Geometric Mean}
+% $\displaystyle(\Pi_{i=1}^N x_i)^{1/N}$, used to compare unequal measures.
+% The geometric mean of $A$ and $B$ is the length of a side in the square whose area is equal to the area of the rectangle with sides $A$ and $B$.
+
+% Standard Error
+% Standard Deviation
+
+% \subsubsection*{Central Moment}
+% A moment is the expected deviation of a variable from its expectation.
+% A central moment is deviation from the mean.
+% For example, the second central moment is the variance.
+% In a symmetric distribution, all odd moments are zero.
+
+% \subsubsection*{Skewness}
+% Third central moment divided by cubed sample standard deviation.
+% $\displaystyle\frac{\frac{1}{n}\Sigma^n_{i=1}(x_i - \overline{x})^3}{(\frac{1}{n}\Sigma^n_{i=1}(x_i - \overline{x})^2)^\frac{3}{2}}$
+
+
+\subsection{Future Work: Learning the distribution}
+\todo{needs a lot of work}
+
+A useful measure would be an estimate of the actual, underlying distribution of running times.
+There are a few techniques for doing so.
+
+\subsubsection*{$\chi^2$ test}
+Pearson's $\chi^2$ test~\cite{todo} is \todo{describe xi2}.
+
+Problem: test requires too many samples
+
+\subsubsection*{Instance-Optimal Learning}
+\todo{read FOCS 2015 paper, better than 66\% guessing?}
+
+Recent techniques can learn distribution properties with significantly fewer samples.
+For example, one can test whether an unknown distribution is uniform over $N$ bins using $\Theta(\sqrt{n}/\varepsilon^2)$ samples by measuring how far the observed proportion of samples observed in each bucket deviates from $\frac{1}{N}$~\cite{todo}.
+A similar technique works for \emph{any} guessed distribution with $66\%$ likelihood of success.\footnote{This figure of $66\%$ may be improved by iterating the test and selecting the majority answer.}
+
+We would apply these results by:
+\begin{itemize}
+\item
+  Partitioning the space of all configuration running times into buckets.
+  The difficulty is picking a good maximum value.
+  After random sampling to learn the mean \& standard deviation, we would use the upper bound $\emph{mean} + 4 * \emph{std}$.
+\item
+  Choose a good $\varepsilon$ for the test.
+  I do not know how to do this yet.
+\item
+  Choose a few distributions to compare to, like the uniform, normal, left-skewed, and right-skewed distributions.
+\item
+  Use the test to guess the likelihood of the actual distribution matching the model.
+\end{itemize}
+We leave this for future work because of the uncertainty in bucketing the distribution and our failure to fully understand the paper's results at this time.
+
+
+\subsection{Rel. Work: TypeScript is a macro-GT language}
+\textbf{Hypothesis:}
+Although TypeScript supports micro gradual typing, type annotations are in practice added in a macro ``by-module'' style.
+Micro gradual typing is instead used in one of two ways:
+\begin{itemize}
+\item As a placeholder for a strong type inference engine.
+\item To express the dynamic type, in the sense of Cardelli~\cite{todo}.
+  The dynamic type is especially common in web applications.
+\end{itemize}
+
+\textbf{Argument:}
+\begin{itemize}
+\item
+  TypeScript programs are saved with a \mono{.ts} extension and compile to ordinary JavaScript.
+  Although type annotations may appear anywhere or nowhere in the TypeScript source, the module is essentially written in a ``typed'' language.
+\item
+  Definition files~\cite{todo} are a TypeScript best-practice for integrating TypeScript modules with JavaScript libraries, regardless of whether the original library code was written in JavaScript or TypeScript.
+  For example, the \mono{DefinitelyTyped} repository~\cite{todo} has definition files for over 900 JavaScript libraries.
+  While in theory these definitions could include any sampling of identifiers and micro annotations, Microsoft's recommendation is to write a typed API to the module~\cite{todo} and our limited experience confirms that this is indeed common practice.
+\end{itemize}
+
+\vfill
+\bibliographystyle{plain}
+\bibliography{appendix-b}
+\end{document}
