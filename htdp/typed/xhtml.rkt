@@ -6,8 +6,8 @@
 (provide
  ;; String -> Void
  ;; ./xhtml [release | draft | file[.scrbl]]
- ;; renders the stable version of HtDP2e, its draft version, or just the specified part or chapter 
- ;; when a plain file name f is given, xhtml looks for f.scrbl 
+ ;; renders the stable version of HtDP2e, its draft version, or just the specified part or chapter
+ ;; when a plain file name f is given, xhtml looks for f.scrbl
  main)
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
                            String
                            Path-String
                            String
-                           (-> (Class) (Class))
+                           (All (A B) (-> A B));RenderMixin
                            Void)
                        String
                        Path-String)
@@ -36,7 +36,7 @@
   [draft-info-note String]
   [info-htdp String]
   [info-note String]
-  [run  (->* ((-> (Class) (Class))
+  [run  (->* ((All (A B) (-> A B));RenderMixin
              Path-String
              part
              Path-String
@@ -55,12 +55,12 @@
 
 (require/typed
  scribble/html-render
- [render-mixin (-> (Class) (Class))])
+ [render-mixin (All (A B) (-> A B))]);RenderMixin])
 
 (: main (-> String Void))
 (define (main arg)
-  (cond 
-    [(string=? "release" arg) 
+  (cond
+    [(string=? "release" arg)
      (process-whole #f scribble-it HTDP2 HTDP2-DESTINATION #t)]
     [(string=? "draft" arg)
      (create-draft-file)
@@ -87,12 +87,12 @@
   (unless (directory-exists? destination) (make-directory destination))
   (scribble-it #f stem destination #f))
 
-;; Boolean String String [Maybe String] {[Class -> Class]} {Boolean} -> Void 
+;; Boolean String String [Maybe String] {[Class -> Class]} {Boolean} -> Void
 ;; produce destination/stem.html by
-;; -- initialize the is-draft parameter in shared.ss with the draft? flag 
+;; -- initialize the is-draft parameter in shared.ss with the draft? flag
 ;; -- rendering stem.scrbl
 ;; -- using the redirect? url as source of documentation
-;; -- using renderer, which implements render<%>, to scribble 
+;; -- using renderer, which implements render<%>, to scribble
 ;; produce [draft-]info-file for cross-references to HtDP
 ;; -- but only if produce-info? calls for it (DON'T DO IT FOR CHAPTERS and INTERMEZZOS)
 ;; open browser on stem.html
@@ -100,7 +100,7 @@
                      String
                      Path-String
                      (U String #f))
-                    ((-> (Class) (Class))
+                    ((All (A B) (-> A B));RenderMixin
                      Boolean)
                     Void))
 (define (scribble-it draft? stem destination redirect? (renderer render-mixin) (produce-info? #f))
@@ -127,7 +127,7 @@
   ;;   (send-url/file (if (file-exists? stem.html) stem.html (build-path stem "index.html")))))
 
 ;; ---------------------------------------------------------------------------------------------------
-;; the code below used to be a standalone script 
+;; the code below used to be a standalone script
 
 ;; -> Void
 (: cleanup (-> Void))
@@ -135,8 +135,8 @@
   (for ((f (directory-list)) #:when (regexp-match ".html$" (path->string f)))
     (fix-1-file (path->string f))))
 
-;; String -> Void 
-;; given the file name ... 
+;; String -> Void
+;; given the file name ...
 ;; [i know i can do this with regexp-replace ...]
 (: fix-1-file (-> String Void))
 (define (fix-1-file file-name)
@@ -146,7 +146,7 @@
     (define (loop)
       (: next (U EOF Char))
       (define next (read-char))
-      (unless (eof-object? next) 
+      (unless (eof-object? next)
         (cond
           [(char=? next #\-)
            (let ([next2 (read-char)])

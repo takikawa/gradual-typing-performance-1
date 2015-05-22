@@ -2,41 +2,40 @@
 
 (provide
  ;; Boolean [Boolean String String [Maybe String] [Class -> Class] . Any -> Void] String String -> Any
- process-whole 
-
+ process-whole
  ;; [ -> ] PathString PathString PathString [Maybe PathString] PathString X ... -> Any
  ;; syntax
  run
-
  ;; String
  NOTES HTDP2 DRAFT HTDP2-DESTINATION DRAFT-DESTINATION
-
  ;; PathString:
  ;; where is cross-referencing information for htdp2e and notes stored to/retrieved from
  info-htdp draft-info-htdp info-note draft-info-note
 )
 
-;; The documents end up in: 
+;; The documents end up in:
 ;; ROOT
 ;; -- HtDP2e/Notes ## notes for the stable version of HtDP/2e  [UNTESTED]
 ;; -- HtDP2e       ## the stable version of HtDP/2e
-;; -- HtDP2e/Notes ## notes for the draft version of HtDP/2e 
+;; -- HtDP2e/Notes ## notes for the draft version of HtDP/2e
 ;; -- HtDP2e/Draft ## the draft version of HtDP/2e
 
 ;; ---------------------------------------------------------------------------------------------------
 
 (require "../base/types.rkt")
 
-(require/typed
- scribble/xref
+(require (only-in scribble/base-render render%))
+;; (require/typed scribble/base-render
+;;  [#:opaque render<%> interface?])
+
+(require/typed scribble/xref
  [#:opaque Xref xref?])
 
-(require/typed
- scribble/render
- ;; bg: Only typing the optional args I'm using
+(require/typed scribble/render
  [render (-> (Listof part)
              (Listof Path-String)
-             [#:render-mixin (-> (Class) (Class))]
+             ;[#:render-mixin RenderMixin]
+             [#:render-mixin (All (A B) (-> A B))]
              [#:dest-dir (U #f Path-String)]
              [#:xrefs (Listof Xref)]
              [#:quiet? Any]
@@ -47,12 +46,14 @@
 
 (require/typed
  scribble/html-render
- [render-mixin (-> (Class) (Class))]
- [render-multi-mixin (-> (Class) (Class))])
+ [render-mixin (All (A B) (-> A B))];RenderMixin]
+ [render-multi-mixin (All (A B) (-> A B))]);RenderMixin])
 
 (require/typed
  setup/xref
  [load-collections-xref (->* () ((-> Any)) Xref)])
+
+;; =============================================================================
 
 (define ROOT "../base/Trash")
 
@@ -77,28 +78,31 @@
                            String
                            Path-String
                            String
-                           (-> (Class) (Class))
+                           (All (A B) (-> A B));RenderMixin
                            Void)
                        String
                        Path-String)
                       (Boolean)
                       Void))
 (define (process-whole draft? scribble-it stem destination [maybe-flag #f])
-  (define redirect 
+  (define redirect
     (if draft?
         "http://plt.eecs.northwestern.edu/snapshots/current/doc/"
         "http://docs.racket-lang.org/"))
-  (define renderer (compose render-multi-mixin render-mixin))
+  (: renderer (All (A B) (-> A B)))
+  (define (renderer x)
+    (render-multi-mixin (render-mixin x)))
+    ;(compose render-multi-mixin render-mixin))
   (scribble-it draft? stem destination redirect renderer ));maybe-flag))
   ;; (apply scribble-it draft? stem destination redirect renderer stuff))
 
 
-;; run renderer on the remaining arguments with keywords supplied 
-;; it's a syntax rule because I don't know how to supply an optional keyword otherwise 
+;; run renderer on the remaining arguments with keywords supplied
+;; it's a syntax rule because I don't know how to supply an optional keyword otherwise
 ;; (without running a decision again and thus duplicating the whole thing)
 ;; TODO bg: passing optional argument as false, if missing. But that syntax-rule trick was fun.
 ;; (define-syntax-rule (run renderer stem stem.doc destination redirect? in-file out-file ...)
-(: run (->* ((-> (Class) (Class))
+(: run (->* ((All (A B) (-> A B));RenderMixin
              Path-String
              part
              Path-String

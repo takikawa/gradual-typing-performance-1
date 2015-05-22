@@ -23,7 +23,7 @@ exec /home/ben/code/racket/fork/racket/bin/racket -tm "$0" ${1+"$@"}
                            String
                            Path-String
                            String
-                           (-> (Class) (Class))
+                           (All (A B) (-> A B));RenderMixin
                            Void)
                        String
                        Path-String)
@@ -37,7 +37,7 @@ exec /home/ben/code/racket/fork/racket/bin/racket -tm "$0" ${1+"$@"}
   [draft-info-note String]
   [info-htdp String]
   [info-note String]
-  [run  (->* ((-> (Class) (Class))
+  [run  (->* ((All (A B) (-> A B));RenderMixin
              Path-String
              part
              Path-String
@@ -70,7 +70,7 @@ exec /home/ben/code/racket/fork/racket/bin/racket -tm "$0" ${1+"$@"}
                      String
                      Path-String
                      (U String #f)
-                     (-> (Class) (Class)))
+                     (All (A B) (-> A B)));RenderMixin)
                     (Boolean)
                     Void))
 (define (scribble-it draft? stem destination redirect? renderer [unused-flag #f])
