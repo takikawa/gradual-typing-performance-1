@@ -121,3 +121,6 @@ Experience Porting typed/HTDP
    But the methods aren't in the render interface so there are errors.
 8. Tried changing all `RenderMixin` occurrences with `(All (A B) (-> A B))`.
    Got error "superclass expression: result is not a class"
+9. With Asumu: made a row polymorphic type. Things are great now.
+   Only typed the documented `render%` methods.
+   Unfortunately the mixin doesn't work because it adds undocumented methods.
