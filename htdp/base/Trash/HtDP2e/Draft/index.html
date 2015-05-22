@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html class="a bunch of things"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><title>How to Design Programs, Second Edition</title><link rel="stylesheet" type="text/css" href="scribble.css" title="default"/><link rel="stylesheet" type="text/css" href="shared.css" title="default"/><link rel="stylesheet" type="text/css" href="racket.css" title="default"/><link rel="stylesheet" type="text/css" href="manual-style.css" title="default"/><link rel="stylesheet" type="text/css" href="manual-racket.css" title="default"/><script type="text/javascript" src="scribble-common.js"></script><script type="text/javascript" src="manual-racket.js"></script><!--[if IE 6]><style type="text/css">.SIEHidden { overflow: hidden; }</style><![endif]--></head><body id="scribble-racket-lang-org"><div class="tocset"><div class="tocview"><div class="tocviewlist tocviewlisttopspace"><div class="tocviewtitle"><table cellspacing="0" cellpadding="0"><tr><td style="width: 1em;"><a href="javascript:void(0);" title="Expand/Collapse" class="tocviewtoggle" onclick="TocviewToggle(this,&quot;tocview_0&quot;);">&#9660;</a></td><td></td><td><a href="" class="tocviewselflink" data-pltdoc="x">How to Design Programs, Second Edition</a></td></tr></table></div><div class="tocviewsublistonly" style="display: block;" id="tocview_0"><table cellspacing="0" cellpadding="0"><tr><td align="right"></td><td><a href="part_prologue.html" class="tocviewlink" data-pltdoc="x">Prologue:<span class="mywbr"> &nbsp;</span> How to Program</a></td></tr></table></div></div></div><div class="tocsub"><div class="tocsubtitle">On this page:</div><table class="tocsublist" cellspacing="0"><tr><td><span class="tocsublinknumber"></span><a href="#%28part._htdp2e%29" class="tocsubseclink" data-pltdoc="x">How to Design Programs, Second Edition</a></td></tr></table></div></div><div class="maincolumn"><div class="main"><div class="versionbox"><span class="version">6.1.1.8</span></div><div class="navsettop"><span class="navleft"><div class="nosearchform"></div>&nbsp;&nbsp;</span><span class="navright">&nbsp;&nbsp;<span class="nonavigation">&larr; prev</span>&nbsp;&nbsp;<span class="nonavigation">up</span>&nbsp;&nbsp;<a href="part_prologue.html" title="forward to &quot;Prologue: How to Program&quot;" data-pltdoc="x">next &rarr;</a></span>&nbsp;</div><h2><a name="(part._htdp2e)"></a>How to Design Programs, Second Edition</h2><blockquote class="refpara"><blockquote class="refcolumn"><blockquote class="refcontent"><p>&#169; 1 August 2014 <a href="http://mitpress.mit.edu">MIT Press</a></p><p>This material is copyrighted and provided under the Creative Commons
+<a href="http://creativecommons.org/licenses/by-nc-nd/2.0/legalcode">CC
+BY-NC-ND</a> license [<a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">interpretation</a>].</p></blockquote></blockquote></blockquote><blockquote class="SubFlow"><table cellspacing="0" cellpadding="0" align="center" cellspacing="6" height="150"><tr><td><blockquote class="SCentered"><p>Matthias Felleisen,
+Robert Bruce Findler,
+Matthew Flatt,
+Shriram Krishnamurthi</p></blockquote></td></tr></table></blockquote><p><div class="SIntrapara"><blockquote class="refpara"><blockquote class="refcolumn"><blockquote class="refcontent"><p>Do you notice the italics? Italicized words refer to technical
+terms. Here they refer to books on programming currently in bookstores.</p></blockquote></blockquote></blockquote></div><div class="SIntrapara">Bad programming is easy. Even <span style="font-style: italic">Dummies</span> can learn it in <span style="font-style: italic">21 days</span>.</div></p><p>Good programming requires thought, but <span style="font-weight: bold">everyone</span> can do it and
+ <span style="font-weight: bold">everyone</span> can experience the extreme satisfaction that comes with
+ it.  The price is worth paying for the sheer joy of the discovery process,
+ the elegance of the result, and the commercial benefits of a systematic
+ program design process.</p><p>The goal of our book is to introduce readers of all ages and backgrounds to
+ the craft of designing programs systematically. We assume few
+ prerequisites: arithmetic, a tiny bit of middle school algebra, and the
+ willingness to think through issues. We promise that the travails will pay
+ off not just for future programmers but for anyone who has to follow a
+ process or create one for others.</p><p><span style="font-weight: bold">Draft Release</span></p><p>This document is the <span style="font-weight: bold">draft release</span> of HtDP/2e. It
+is updated on a frequent basis.  The <a href="../index.html"><span style="font-weight: bold">stable
+version</span></a> is released in conjunction with the PLT software and is thus more
+suitable for teaching than this draft.</p><blockquote class="SCentered"><p>Released on Wednesday, February 18th, 2015 4:29:05pm</p></blockquote><p><span style="font-weight: bold">How the Second Edition Differs from the First</span></p><p>This second edition of &ldquo;How to Design Programs&rdquo; differs from the first
+one in several aspects:</p><ol><li><p>The second edition explicitly acknowledges the difference between
+designing a program and designing a bunch of functions. In particular,
+this edition focuses on two kinds of programs: interactive, reactive
+(graphical) programs and so-called batch programs.<span class="refelem"><span class="refcolumn"><span class="refcontent">Because
+graphical interactive programs are more interesting than batch programs,
+the book emphasizes the former over the latter.</span></span></span></p></li><li><p>The design of a program proceeds in a top-down planning and a
+bottom-up construction fashion. We explicitly show how the interface to
+the libraries dictates the shape of certain program elements. In
+particular, the very first phase of a program design yields a wish list of
+functions. While the concept of a wish list existed in the first edition,
+the second edition treats it as an explicit design element.</p></li><li><p>The design of each wish on the wish list exploits the design recipe
+for functions. As in the first edition, the six parts focus on structural
+design, compositional design, generative recursion, and design of both
+structural and generative programs with accumulators.</p></li><li><p>A key element of structural design is the definition of functions
+that compose others. This design-by-composition<span class="refelem"><span class="refcolumn"><span class="refcontent">We thank
+Dr. Kathi Fisler for focusing our attention on this point.</span></span></span> is especially
+useful for the world of batch programs. Like generative recursion, it
+requires a eureka, specifically a recognition that the creation of
+intermediate data by one function and processing the intermediate data by
+a second function simplifies the overall design. Again, this kind of
+planning also creates a wish list, but formulating these wishes calls for
+an insightful development of an intermediate data definition. This edition
+of the book weaves in a number of explicit exercises on
+design-by-composition.</p></li><li><p>While testing has always been a part of the &ldquo;How to Design
+Programs&rdquo; philosophy, the teaching languages and DrRacket started supporting
+it properly only in 2002, just after we had released the first
+edition. This new edition heavily relies on this testing support now.</p></li><li><p>This edition of the book drops the design of imperative programs. The
+old chapters remain available on-line. The material will flow into the
+second volume of this series, &ldquo;How to Design Components.&rdquo;</p></li><li><p>The book&rsquo;s examples and exercises employ new teachpacks. The
+preferred style is to link in these libraries via so-called
+<span class="RktSym"><a href="http://plt.eecs.northwestern.edu/snapshots/current/doc/reference/require.html#%28form._%28%28lib._racket%2Fprivate%2Fbase..rkt%29._require%29%29" class="RktStxLink" data-pltdoc="x">require</a></span> specifications, but it is still possible to add
+teachpacks via a menu in DrRacket.</p></li><li><p><div class="SIntrapara">Finally, we decided to use a slightly different terminology:
+</div><div class="SIntrapara"><table cellspacing="0" cellpadding="0" cellpadding="1"><tr><td width="400" align="left" valign="top"><p>HtDP/1e</p></td><td width="400" align="left" valign="top"><p>HtDP/2e</p></td></tr><tr><td width="400" align="left" valign="top"><p>
+</p></td><td width="400" align="left" valign="top"><p>
+</p></td></tr><tr><td width="400" align="left" valign="top"><p>contract</p></td><td width="400" align="left" valign="top"><p>signature</p></td></tr><tr><td width="400" align="left" valign="top"><p>
+</p></td><td width="400" align="left" valign="top"><p>
+</p></td></tr><tr><td width="400" align="left" valign="top"><p>union</p></td><td width="400" align="left" valign="top"><p>itemization</p></td></tr></table></div></p></li></ol><p><span style="font-weight: bold">Acknowledgments</span></p><p>We thank
+ Ennas Abdussalam, 
+ Saad Bashir, 
+ Steven Belknap,
+ Stephen Bloch,
+ Elijah Botkin, 
+ Anthony Carrico, 
+ Rodolfo Carvalho, 
+ Estevo Castro,
+ Stephen Chang,
+ Nelson Chiu, 
+ Jack Clay,
+ Richard Cleis, 
+ John Clements,
+ Mark Engelberg, 
+ Christopher Felleisen,
+ Sebastian Felleisen,
+ Adrian German,
+ Jack Gitelson, 
+ Kyle Gillette, 
+ Scott Greene, 
+ Ryan Golbeck,
+ Josh Grams,
+ Nadeem Abdul Hamid,
+ Jeremy Hanlon, 
+ Craig Holbrook, 
+ Wayne Iba, 
+ Jordan Johnson,
+ Blake Johnson, 
+ Erwin Junge, 
+ Gregor Kiczales,
+ Eugene Kohlbecker,
+ Jackson Lawler,
+ Jay McCarthy,
+ Mike McHugh, 
+ Wade McReynolds, 
+ Elena Machkasova, 
+ David Moses, 
+ Ann E. Moskol,
+ Scott Newson, 
+ Paul Ojanen,
+ Prof. Robert Ord&#243;&#241;ez, 
+ Laurent Orseau, 
+ Klaus Ostermann,
+ Sinan Pehlivanoglu,
+ Eric Parker, 
+ Nick Pleatsikas, 
+ Norman Ramsey,
+ Krishnan Ravikumar, 
+ Jacob Rubin, 
+ Luis Sanju&#225;n,
+ Ryan &ldquo;Havvy&rdquo; Scheel, 
+ Lisa Scheuing, 
+ Willi Schiegel, 
+ Vinit Shah, 
+ Nick Shelley, 
+ Matthew Singer, 
+ Stephen Siegel,
+ Joe Snikeris, 
+ Marc Smith,
+ Dave Smylie,
+ Vincent St-Amour,
+ Reed Stevens, 
+ Kevin Sullivan, 
+ &#201;ric Tanter,
+ Sam Tobin-Hochstadt,
+ Thanos Tsouanas, 
+ Yuwang Yin, 
+ David Van Horn,
+ Jan Vitek, 
+ Mitchell Wand,
+ Michael Wijaya, 
+ G. Clifford Williams, 
+ Ewan Whittaker-Walker, 
+ Julia Wlochowski, 
+ Roelof Wobben
+and
+ Mardin Yadegar, 
+for comments on previous drafts of this second edition.</p><p>The HTML layout is due to Matthew Butternick who created these styles for
+ the Racket documentation.</p><p>We are grateful to Ada Brunstein and Marie Lufkin Lee, our editors at MIT
+ Press, who gave us permission to develop this second edition of "How to
+ Design Programs" on-line.</p><table cellspacing="0" cellpadding="0"><tr><td><p><span class="hspace"></span></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html" class="toptoclink" data-pltdoc="x">Prologue: How to Program</a></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html#%28part._arithmetic-pro%29" class="toclink" data-pltdoc="x">Arithmetic and Arithmetic</a></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html#%28part._some-i%2Fo%29" class="toclink" data-pltdoc="x">Inputs and Output</a></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html#%28part._pro-cond%29" class="toclink" data-pltdoc="x">Many Ways To Compute</a></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html#%28part._pro-many-def%29" class="toclink" data-pltdoc="x">One Program, Many Definitions</a></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html#%28part._more-def%29" class="toclink" data-pltdoc="x">One More Definition</a></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html#%28part._program-now%29" class="toclink" data-pltdoc="x">You Are a Programmer Now</a></p></td></tr><tr><td><p><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="part_prologue.html#%28part._sec~3anot%29" class="toclink" data-pltdoc="x">Not!</a></p></td></tr></table><div class="navsetbottom"><span class="navleft"><div class="nosearchform"></div>&nbsp;&nbsp;</span><span class="navright">&nbsp;&nbsp;<span class="nonavigation">&larr; prev</span>&nbsp;&nbsp;<span class="nonavigation">up</span>&nbsp;&nbsp;<a href="part_prologue.html" title="forward to &quot;Prologue: How to Program&quot;" data-pltdoc="x">next &rarr;</a></span>&nbsp;</div></div></div><div id="contextindicator">&nbsp;</div></body></html>

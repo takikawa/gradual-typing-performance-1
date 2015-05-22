@@ -1,14 +1,10 @@
 #lang at-exp racket
 
-;; bg: commented out to avoid initializing display
-;(require "latex.rkt")
-;(provide (all-from-out "latex.rkt"))
+(require "latex.rkt")
+(provide (all-from-out "latex.rkt"))
 
 (define is-draft? (make-parameter #false))
 (provide is-draft?)
-
-(define note-on-teaching "../base/Notes/A_Note_on_Teaching_part_I.html")
-(define note-on-mice-and-men "../base/Notes/A_Note_on_Mice_and_Characters.html")
 
 (define (bsl) "BSL")
 (define (bsl+) "BSL+")
@@ -16,9 +12,6 @@
 (define (isl+) "ISL+")
 (define (asl) "ASL")
 (define (htdc) @emph{How to Design Components})
-
-(define *op (current-output-port))
-(define (tee x) (displayln x *op) x)
 
 (define prompt (tt ">"))
 
@@ -36,6 +29,10 @@
 (define (file-is f [name "name of file"])
   (define x (read-file f))
   (filebox (tt name) (verbatim x)))
+
+(define (tee x)
+  (printf "tee: ~s\n" x)
+  x)
 
 ;; -> String
 ;; the current year 
@@ -93,8 +90,8 @@
   (make-style "a bunch of things"
               (list
                'toc
-               (make-css-addition "../base/Shared/shared.css")
-               (make-tex-addition "../base/Shared/shared.tex"))))
+               (make-css-addition "Shared/shared.css")
+               (make-tex-addition "Shared/shared.tex"))))
 
 (define p make-paragraph)
 
@@ -117,10 +114,8 @@
 ;; button label (string) 
 (define (button b) (emph (string-upcase b)))
 
-;; String -> Element 
 ;; path to a file or library or teachpack
-(define (tp x) (element 'roman `("the " ,(filepath x) " library")))
-(define (Tp x) (element 'roman `("The " ,(filepath x) " library")))
+(define (tp x) (filepath x))
 
 (define (key b) (format "~s" b))
 
@@ -373,9 +368,9 @@
 
 (define (eq-table w)
   (define space
-    (style #f `(,(attributes `((width . "275") (align . "center") (valign . "bottom"))))))
+    (style #f `(,(attributes `((width . "250") (align . "center") (valign . "top"))))))
   (define eqsp
-    (style #f `(,(attributes `((width . ,(number->string w)) (align . "center") (valign . "top"))))))
+    (style #f `(,(attributes `((width . ,(number->string w)) (align . "center") (valign . "mid"))))))
   (style #f
          (list (attributes `((border . "0") (cellpadding . "0")))
                (table-columns (list space eqsp space)))))
@@ -414,19 +409,7 @@
                (list
                 (make-attributes '((cellpadding . "1")))
                 (make-table-columns (make-list (length stuff) space))))
-   (apply map (compose make-flow list) stuff))
-  #;
-  (define tstuff (transpose stuff))
-  #;
-  (tabular
-    #:sep @hspace[5]
-    #:cell-properties (for/list ((t tstuff)) (for/list ((s t)) 'left))
-    #:row-properties (for/list ((t tstuff)) 'top)
-    tstuff))
-
-;; Matrix -> Matrix 
-(define (transpose stuff)
-  (apply map list stuff))
+   (apply map (compose make-flow list) stuff)))
 
 (define (v-table/short . stuff)
   (define space
@@ -518,8 +501,8 @@
 
 ;; -----------------------------------------------------------------------------
 ;; images 
-(define (img x) (image (string-append "../base/Images/" x)))
-(define (img/p x) (image/plain (string-append "../base/Images/" x)))
+(define (img x) (image (string-append "Images/" x)))
+(define (img/p x) (image/plain (string-append "Images/" x)))
 
 (define (dr-world) (img "drscheme-world.png"))
 
@@ -538,8 +521,8 @@
 (define (bracket-down) (img "bracket-down.png"))
 (define (bracket-up) (img "bracket-up.png"))
 
-; (define (simple-mouse) (img/p "simple-mouse.png"))
-; (define (simple-key x) (img/p (format "SimpleKeys/i~a.png" x)))
+(define (simple-mouse) (img/p "simple-mouse.png"))
+(define (simple-key x) (img/p (format "SimpleKeys/i~a.png" x)))
 (define (car x) (img/p (format "car~a.png" x)))
 (define (rocket) (img/p "rocket-s.jpg"))
 (define (rocketsunk) (img/p "rocket-sunk.png"))
@@ -688,8 +671,8 @@
 
 (require (only-in 2htdp/image frame bitmap))
 
-(define (web-page1) (frame (bitmap "../../base/Images/web-page1.png")))
-(define (web-page2) (frame (bitmap "../../base/Images/web-page2.png")))
+(define (web-page1) (frame (bitmap "../Images/web-page1.png")))
+(define (web-page2) (frame (bitmap "../Images/web-page2.png")))
 
 (define red-color (style #f (list (color-property "red"))))
 
