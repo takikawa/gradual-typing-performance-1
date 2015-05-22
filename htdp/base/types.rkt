@@ -42,5 +42,6 @@
    [get-undefined (-> ResolveInfo (Listof Tag))]))
 
 (define-type RenderMixin
-  (-> (Class #:implements RenderClass)
-      (Class #:implements RenderClass)))
+  (All (r #:row)
+    (-> (Class #:row-var r #:implements RenderClass)
+        (Class #:row-var r #:implements RenderClass))))

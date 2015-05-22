@@ -88,12 +88,11 @@
     (if draft?
         "http://plt.eecs.northwestern.edu/snapshots/current/doc/"
         "http://docs.racket-lang.org/"))
-  ;(: renderer (-> (Class #:implements RenderClass) (Class [part-whole-page? (-> Any Any Any)] #:implements RenderClass)))
-  ;; bg: trying a weaker mixin, let's get this working first
-  (: renderer (-> RenderClass RenderClass))
-  (define (renderer x) x);(render-mixin x))
-    ;(render-multi-mixin (render-mixin x)))
-    ;(compose render-multi-mixin render-mixin))
+  (: renderer (All (r #:row) (-> (Class #:row-var r #:implements RenderClass)
+                                 (Class #:row-var r #:implements RenderClass))))
+  (define (renderer x)
+    ;; bg: original renderer: ;;(compose render-multi-mixin render-mixin))
+    x)
   (scribble-it draft? stem destination redirect renderer ));maybe-flag))
   ;; (apply scribble-it draft? stem destination redirect renderer stuff))
 
