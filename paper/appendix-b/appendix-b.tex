@@ -91,91 +91,160 @@ The choices we made are:
 
 
 \subsection{Statistical Methods}
-For small projects (fewer than 15 modules), it may be possible to comprehensively test the performance criteria listed above.
-That is, the experimenter can create and collect data for each of the $2^N$ configurations obtained by adding types to a subset of the $N$ modules in the project.
-From this data it is straightforward to measure the cost of paths and draw conclusions about the performance of the gradual type system.
+For small projects (fewer than $M=15$ modules), it may be possible to run each of the $2^M$ gradually-typed configurations and learn the true proportion of efficient configurations and paths for the benchmark.
 This exponential factor, however, makes larger studies unrealistic.
-Although software projects of 30 or 100 modules are relatively common, comprehensively testing even $2^{20}$ samples is infeasible.
-Instead we use random sampling to approximate the results.
+Although software projects of 30 or 100 modules are relatively common, comprehensively testing even $2^{20}$ samples requires at least a week of computing time.\footnote{Assuming each configuration takes at least 1 second of real time to run.}
+Instead, we can use statistical methods to estimate the true proportion.
+Sampling a small number of configurations at random gives an estimate that is likely to be close to the true proportion $p$.
 
-Drawing independent, random samples is easy to do in our setting, but picking an appropriate sample size for the heterogenous space of configurations we sample over is not straightforward.
-We obviously cannot use a sample size proportional to the underlying population size, so instead we first choose an estimator and confidence interval, then solve for sample size.
+The price of this estimation is twofold.
+First, we must choose a precise notion of ``closeness'', or error margin.
+This is a number, $\beta \in [0, 1]$, taken to be the average distance of hypothetical estimates from the true proportion.
+Second, we must admit that our estimate has a chance of being very poor.
+We do this by selecting a second number, $\alpha \in [0,1]$, as the percentage (expressed as a decimal) of estimates outside the acceptable error margin.\footnote{The parameter $\alpha$ is commonly used to define a confidence interval: ``with $100(1 - \alpha)\%$ confidence, the true proportion lies within the error margin of our sample proportion''.}
+Typically $\alpha = 0.05$ and $\beta = 0.2$, implying a small chance of drawing a false conclusion ($\alpha$-error) and a slightly higher chance of \todo{intuition for $\beta$-error}.
 
-\subsubsection{Estimating a Proportion}
-Let $S$ denote the sample size we seek to derive.
-To determine the proportion of configurations with acceptable performance overhead, we use the estimator $\hat{x} = X / S$ where $X$ is the number of samples with acceptable overhead.
-Given independent samples, this estimator has a binomial distribution so the worst-case variance is $0.25 / S$.
-Using the Wald method~\cite{todo}, the 95\% confidence interval is within $\pm 2\sqrt{0.25 / S}$ of the estimator $\hat{x}$.
-Arbitrarily choosing a confidence interval of $\pm 5\%$ times our estimator and using the formula~\cite{todo} $4\sqrt{0.25 / S} = 1 / (2 * 5)$ we solve to get $S = 400$ as the required sample size.
+For our setting, $\alpha = 0.05$ is reasonable (albiet high), but we require a much smaller value of $\beta$.
+Intuitively, a tiny change in the number of performant gradually typed configurations is important to recognize.
+Hence $\beta$ should be no more than $0.05$, corresponding to a $5\%$ increase in the number of performant configurations.
+
+The choice of $\beta$ is offset by an increase in the sample size required to make an accurate estimate.
+In the limiting case, $2^M$ samples are necessary to achieve $\beta = 0$.
+But once we relax $\beta$ to be a small constant, we can apply the well-known central limit theorem~\cite{todo} to derive a constant sample size $n$ that will produce good estimates regardless of the size of the underlying population.
+
+To emphasize the point: given fixed error margins $\alpha$ and $\beta$ there exists a \emph{universal constant} $n$ such that $n$ samples are sufficient to accurately guess the true proportion of efficient gradually-typed configurations.
+This constant $n$ is the same whether there are 100, ten-thousand, or a billion gradually-typed configurations to sample from.
+Note however that the concrete value denoted by the decimals $\alpha$ and $\beta$ will depend on variation in the underlying population\textemdash the meaning of these parameters changes despite their value being constant.
+
+We now explain how to derive the sample size $n$.
+We do this by reasoning about the hypothetical sample we collect.
+
+Recall our original purpose is to sample an estimate $\hat{p}$ of a true proportion $p$.
+The value $\hat{p}$ will be equal to the number of performant configurations $X$ we observe out of our $n$ samples; that is, $\hat{p} = \frac{X}{n}$.
+This number could lie anywhere in the range $[0, 1]$, but for increasing $n$ it will tend toward the true proportion $p$.
+
+Suppose that we fix $n$ to be a reasonably large number, say $n=40$, and draw many sample proportions $\hat{p}_1, \hat{p}_2, \ldots$.
+Given that the underlying proportion these estimates are drawn from is $p$, we should expect the average value of these proportions to be close to the true $p$.
+This reasoning is (somewhat) formalized by the Law of Large Numbers~\cite{todo}; repeating the same experiment usually leads to stable long-term results.
+If you trust the above statement,\footnote{We admit, this requires a leap of faith. The leap is on par with the faith required to believe that a casino with unfair odds will eventually make money, but it is a leap nonetheless.} then it follows that the sample proportions for a fixed $n$ are normally distributed around the true proportion $p$.
+
+The interesting parameter of the normal distribution with mean $p$ is the average distance of other elements in the distribution from $p$.
+This value is the so-called standard error of the distribution.
+A large number of proportions (approximately $66\%$) lie within one standard error of $p$.
+An overwhelming majority of $95\%$ lie within twice the standard error of $p$.
+In other words, suppose we draw the estimate $\hat{p}$.
+There is less than $5\%$ chance that this $\hat{p}$ is more than 2 standard errors away from $p$, so supposing we knew the actual standard error we could use it to bound the probable value of $p$.
+
+Traditionally the sample's standard error is used as a replacement.
+In practice, this tends to give erratic results, so we follow the recommendation of Brown, Cai, and DasGupta~\cite{todo} and use an approximate measure.
+
+\begin{align*}
+  CI &= p^* \pm \kappa\sqrt{\frac{p^*(1 - p^*)}{n^*}}
+\\p^* &= \frac{X^*}{n^*}
+\\n^* &= n + \kappa^2
+\\X^* &= X + \kappa^2 / 2
+\\\kappa &= z_{\alpha / 2}
+\end{align*}
+
+\todo{EXPOSITION}
+This confidence interval has width $W = 2\kappa\sqrt{\frac{p^*(1-p^*)}{n^*}}$.
+\todo{$n^*$ vs $n$}
+Solving for $n$ we get $n = \frac{4\kappa^2p^*(1-p^*)}{W^2}$.
+The worst-case variance for our distribution happens when $p=0.5$ so we can simplify to $n = \frac{4\kappa^20.25}{W^2}$.
+Fix $\alpha = 0.05$, then $\kappa = 1.96$.
+Replace $W$ with our desired bound $\beta$.
+Varying $\beta$ gives required sample sizes.
+
+\[\begin{array}{| r || r r r |}\hline
+  \beta & 0.05  & 0.02   & 0.01 \\
+  n     & 1,600 & 10,000 & 40,000 \\\hline
+  \end{array}\]
+
+These numbers are large, but constant nonetheless.
+\todo{Wikipedia concludes $1 / \beta$, so samples are one-fourth as large. Why is that justified?}
+
+
+\subsubsection{Discussion \& Alternatives}
+Wilson test is more intuitive.
+
+The real $p$ are probably going to be very small and very large.
+It would be good to use a more advanced technique to correct for that, but I don't understand the options yet.
+
+\subsubsection{Comparing 2 Proportions}
+i.e., for Typed Racket vs. Pycket.
 
 \subsubsection{Estimating a Mean}
-While not directly related to our above criteria, a second useful statistic is the population mean.
-For a $95\%$ confidence interval of width $\pm 5\%$ the sample mean, the sample size $S$ for an infinitely large population assuming worst-case variance is $S = \frac{1.96^2 0.5^2}{0.05^2}$~\cite{todo}.
-Increasing the interval width greatly decreases the number of samples required, but we choose $5\%$ and a samples size of about 360 draws.
-Note that this formula relies on the classical Central Limit Theorem~\cite{todo}, which roughly states that the means of sufficiently large independent samples are normally distributed around the true mean of the underlying population.
+Useful to compute, so we can give developers an absolute number to be afraid of.
+
+%% While not directly related to our above criteria, a second useful statistic is the population mean.
+%% For a $95\%$ confidence interval of width $\pm 5\%$ the sample mean, the sample size $S$ for an infinitely large population assuming worst-case variance is $S = \frac{1.96^2 0.5^2}{0.05^2}$~\cite{todo}.
+%% Increasing the interval width greatly decreases the number of samples required, but we choose $5\%$ and a samples size of about 360 draws.
+%% Note that this formula relies on the classical Central Limit Theorem~\cite{todo}, which roughly states that the means of sufficiently large independent samples are normally distributed around the true mean of the underlying population.
+
 
 \subsubsection{Sampling Protocol}
-Our protocol for drawing independent sample configurations is very simple.
-Supposing $N$ modules in the project, assign each of the $2^N$ configurations a unique natural number.
-We do this by assigning each of the $N$ modules an index and enumerating binary strings where the $i$-th digit is $1$ iff the module assigned index $i$ is typed.
-Then sample without replacement from the space of $2^N$ choices to give each configuration an equal probability of being sampled.
+Simple random sampling without replacement over all possible configurations.
+
+pros:
+\begin{itemize}
+\item unbiased
+\item no advance knowledge besides sampling frame
+\end{itemize}
+
+Drawing independent sample configurations is very simple.
+Supposing $M$ modules in the project, assign each of the $2^M$ configurations a unique natural number.
+We do this by assigning each of the $M$ modules an index and enumerating binary strings where the $i$-th digit is $1$ iff the module assigned index $i$ is typed.
+Then sample without replacement from the interval $[0, 2^M]$.
 
 We can sample paths using a similar enumeration protocol, but a simpler scheme is to do a random walk of the lattice starting from the untyped node.
 At each step, randomly choose one of the possible next configurations.
 Each alternative leads to an equal number of paths in the lattice, so this method fairly chooses one path out of all possibilities.
 \todo{argue correctness a little more. what happens with lines-of-code lattices?}
 
-\subsubsection{Testing Configurations}
+
+\textbf{Non-responses:} it's maybe possible some configs cannot be run.
+This is a matter of expressiveness.
+Very important to document if it comes up.
+For example, we had to remove polymorphism to get all variations running.
+
+\textbf{Why not stratified?}
+An alternative to simple random sampling is to first divide the population into groups, or strata, and sample from those subsets.
+
+An obvious choice for strata in our setting is to divide configurations based on the number of typed modules.
+We want to see how adding types affect performance, so split \& sample.
+
+However, stratified sampling is most effective when variability within strata is minimized and variability between strata is maximized~\cite{wikip}.
+Our absolute results suggest that this is not true.
+The results are confounded by the unequal cost of each module boundary.
+High-cost boundaries will dominate the results at any level.
+
+Stratified sampling is best for focusing on important sub-populations, but our science isn't really ready for that yet.
+
+
+\subsubsection{Testing Configurations} %% aka taking measurements aka avoiding measurement error
 A final point, which is important even in comprehensive testing, is how to measure the runtime of a single configuration.
 Following the advice of prior work, we run a single throwaway build and then average the running times of the next 50 samples.
 The throwaway build helps address outliers to do CPU caching\textemdash in particular the caching done by the Racket virtual machine~\cite{todo}\textemdash and the law of large numbers implies that our measurements should be fairly stable after 30 measurements.
 Note that 30 rather than 300 samples are sufficient because the underlying distribution is homogenous: running times of a single configuration should be approximately the same, as opposed to running times of any two configurations.
 
-\subsubsection{Summary}
-To summarize our sampling protocol:
-\begin{enumerate}
-\item Choose a confidence level and interval for measurements.
-  We chose a $95\%$ confidence level and an interval of $\pm 5\%$ around the sample.
-\item Derive a sample size $S_1$ from the chosen confidence parameters.
-  We derive $S_1 = 400$.
-\item Choose a sample size $S_2 \ge 30$ for testing individual configurations.
-  We remark that although 30 is probably suitable, error between the t and normal distributions is still quite large at 30~\cite{todo}.
-\item Enumerate the gradually-typed configurations and divide them into meaningful subsets.
-  We use the aforementioned binary enumeration and examine $N-1$ subsets: the space of all gradually-typed configurations and the spaces of all configurations with exactly $i$ typed modules, for $i \in \{1 \ldots N-1\}$.
-\item For each subset, draw $S_1$ configurations and infer the mean running time for each.
-  From these means, derive an estimate for the proportion of efficient configurations, the subset mean, and any other desired statistics.
-  Be sure to report the sample variance and standard error \todo{say why}.
-\item Draw $S_1$ paths and compute statistics for each by measuring the running time of each configuration along each path.
-\end{enumerate}
-If, after following this protocol, the confidence intervals of two gradual type systems do not overlap, we may conclude that one is more performant than the other by a statistically significant margin.
-\todo{other things to consider before reaching conclusion?}
-
-% TODO
-% - delta method to compute median?
-%   http://stats.stackexchange.com/questions/45124/central-limit-theorem-for-sample-medians
-% - sample size
-%   http://www.sciencedirect.com/science/article/pii/019724569090005M
-% - wald method citation
-
-% \subsubsection*{Arithmetic Mean}
-% The familiar $\displaystyle\frac{\Sigma x_i}{|x_i|}$
-
-% \subsubsection*{Geometric Mean}
-% $\displaystyle(\Pi_{i=1}^N x_i)^{1/N}$, used to compare unequal measures.
-% The geometric mean of $A$ and $B$ is the length of a side in the square whose area is equal to the area of the rectangle with sides $A$ and $B$.
-
-% Standard Error
-% Standard Deviation
-
-% \subsubsection*{Central Moment}
-% A moment is the expected deviation of a variable from its expectation.
-% A central moment is deviation from the mean.
-% For example, the second central moment is the variance.
-% In a symmetric distribution, all odd moments are zero.
-
-% \subsubsection*{Skewness}
-% Third central moment divided by cubed sample standard deviation.
-% $\displaystyle\frac{\frac{1}{n}\Sigma^n_{i=1}(x_i - \overline{x})^3}{(\frac{1}{n}\Sigma^n_{i=1}(x_i - \overline{x})^2)^\frac{3}{2}}$
+%% \subsubsection{Summary}
+%% To summarize our sampling protocol:
+%% \begin{enumerate}
+%% \item Choose a confidence level and interval for measurements.
+%%   We chose a $95\%$ confidence level and an interval of $\pm 5\%$ around the sample.
+%% \item Derive a sample size $S_1$ from the chosen confidence parameters.
+%%   We derive $S_1 = 400$.
+%% \item Choose a sample size $S_2 \ge 30$ for testing individual configurations.
+%%   We remark that although 30 is probably suitable, error between the t and normal distributions is still quite large at 30~\cite{todo}.
+%% \item Enumerate the gradually-typed configurations and divide them into meaningful subsets.
+%%   We use the aforementioned binary enumeration and examine $N-1$ subsets: the space of all gradually-typed configurations and the spaces of all configurations with exactly $i$ typed modules, for $i \in \{1 \ldots N-1\}$.
+%% \item For each subset, draw $S_1$ configurations and infer the mean running time for each.
+%%   From these means, derive an estimate for the proportion of efficient configurations, the subset mean, and any other desired statistics.
+%%   Be sure to report the sample variance and standard error \todo{say why}.
+%% \item Draw $S_1$ paths and compute statistics for each by measuring the running time of each configuration along each path.
+%% \end{enumerate}
+%% If, after following this protocol, the confidence intervals of two gradual type systems do not overlap, we may conclude that one is more performant than the other by a statistically significant margin.
+%% \todo{other things to consider before reaching conclusion?}
 
 
 \subsection{Future Work: Learning the distribution}
