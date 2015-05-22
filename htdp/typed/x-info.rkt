@@ -34,8 +34,7 @@
 (require/typed scribble/render
  [render (-> (Listof part)
              (Listof Path-String)
-             ;[#:render-mixin RenderMixin]
-             [#:render-mixin (All (A B) (-> A B))]
+             [#:render-mixin RenderMixin]
              [#:dest-dir (U #f Path-String)]
              [#:xrefs (Listof Xref)]
              [#:quiet? Any]
@@ -46,8 +45,8 @@
 
 (require/typed
  scribble/html-render
- [render-mixin (All (A B) (-> A B))];RenderMixin]
- [render-multi-mixin (All (A B) (-> A B))]);RenderMixin])
+ [render-mixin RenderMixin]
+ [render-multi-mixin RenderMixin])
 
 (require/typed
  setup/xref
@@ -78,7 +77,7 @@
                            String
                            Path-String
                            String
-                           (All (A B) (-> A B));RenderMixin
+                           RenderMixin
                            Void)
                        String
                        Path-String)
@@ -89,9 +88,11 @@
     (if draft?
         "http://plt.eecs.northwestern.edu/snapshots/current/doc/"
         "http://docs.racket-lang.org/"))
-  (: renderer (All (A B) (-> A B)))
-  (define (renderer x)
-    (render-multi-mixin (render-mixin x)))
+  ;(: renderer (-> (Class #:implements RenderClass) (Class [part-whole-page? (-> Any Any Any)] #:implements RenderClass)))
+  ;; bg: trying a weaker mixin, let's get this working first
+  (: renderer (-> RenderClass RenderClass))
+  (define (renderer x) x);(render-mixin x))
+    ;(render-multi-mixin (render-mixin x)))
     ;(compose render-multi-mixin render-mixin))
   (scribble-it draft? stem destination redirect renderer ));maybe-flag))
   ;; (apply scribble-it draft? stem destination redirect renderer stuff))
@@ -102,7 +103,7 @@
 ;; (without running a decision again and thus duplicating the whole thing)
 ;; TODO bg: passing optional argument as false, if missing. But that syntax-rule trick was fun.
 ;; (define-syntax-rule (run renderer stem stem.doc destination redirect? in-file out-file ...)
-(: run (->* ((All (A B) (-> A B));RenderMixin
+(: run (->* (RenderMixin
              Path-String
              part
              Path-String

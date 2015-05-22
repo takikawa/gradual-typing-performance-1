@@ -21,7 +21,7 @@
                            String
                            Path-String
                            String
-                           (All (A B) (-> A B));RenderMixin
+                           RenderMixin
                            Void)
                        String
                        Path-String)
@@ -36,7 +36,7 @@
   [draft-info-note String]
   [info-htdp String]
   [info-note String]
-  [run  (->* ((All (A B) (-> A B));RenderMixin
+  [run  (->* (RenderMixin
              Path-String
              part
              Path-String
@@ -55,7 +55,7 @@
 
 (require/typed
  scribble/html-render
- [render-mixin (All (A B) (-> A B))]);RenderMixin])
+ [render-mixin RenderMixin])
 
 (: main (-> String Void))
 (define (main arg)
@@ -100,7 +100,7 @@
                      String
                      Path-String
                      (U String #f))
-                    ((All (A B) (-> A B));RenderMixin
+                    (RenderMixin
                      Boolean)
                     Void))
 (define (scribble-it draft? stem destination redirect? (renderer render-mixin) (produce-info? #f))

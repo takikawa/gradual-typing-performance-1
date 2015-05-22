@@ -26,8 +26,8 @@
 ;; produce [draft-]info-file for cross-references to HtDP
 ;; open browser on stem.html 
 (define (scribble-it draft? stem destination redirect? renderer)
-  (define stem.scrbl (string-append stem ".scrbl"))
-  (define stem.html  (string-append stem ".html"))
+  (define stem.scrbl (string-append "../base/" stem ".scrbl"))
+  (define stem.html  (string-append "../base/" stem ".html"))
   (displayln `(rendering ,stem.scrbl draft: ,draft?))
   (define stem.doc (dynamic-require stem.scrbl 'doc))
   (define-values (in-file out-file)
