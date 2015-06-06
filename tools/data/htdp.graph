@@ -1,0 +1,5 @@
+MODULE	INDEX	REQUIRES
+main.rkt	0	xhtml.rkt
+x-info.rkt	1	
+xhtml.rkt	2	x-info.rkt,xnotes.rkt
+xnotes.rkt	3	x-info.rkt
