@@ -191,6 +191,14 @@
 (define (avg-runtime sm)
   (mean (all-gt-runtimes sm)))
 
+;; Geometric mean of all gradual lattice means (mean of means, excluding top & bot)
+(define (geometric-avg sm)
+  (define vec (summary-dataset sm))
+  (define N (vector-length vec))
+  (define invN (/ 1 (- N 2)))
+  (for/product ([i (in-range 1 (sub1 N))])
+    (expt (mean (vector-ref vec i)) invN)))
+
 ;; -----------------------------------------------------------------------------
 ;; --- viewing
 
@@ -219,7 +227,7 @@
                (text->pict (format "(~a modules)" (get-num-modules sm)))
                (text->pict (overhead (typed-mean sm)))
                (text->pict (overhead (max-runtime sm)))
-               (text->pict (overhead (avg-runtime sm)))))
+               (text->pict (overhead (geometric-avg sm)))))
   (vl-append vpad
              (hc-append hspace left-column right-column)
              (blank 1 vpad)))
