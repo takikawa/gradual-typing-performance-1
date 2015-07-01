@@ -74,8 +74,7 @@ structure, as illustrated in the right half of @figure-ref{fig:adaptor}.
 
 Strictly speaking, typed adaptor modules are not necessary.
 It is possible to modify the design of imports for any given configuration so
-that a single typed module declares and re-exports type annotations for untyped
-data.
+that an existing typed module functions as the adaptor.
 This necessary redesign, however, often presents a non-trivial challenge and
 made it impossible for us to synthesize the @math{2^n} gradually-typed variations from
 a fully-untyped and fully-typed version of each benchmark.
