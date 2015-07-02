@@ -22,7 +22,7 @@ variations we ran when testing the benchmark, as a program with @math{n} modules
 can be gradually typed in @math{2^n} possible variations.
 Lines of code is less important for evaluating macro gradual typing,
 but gives a sense of the overall complexity of each benchmark.
-Moreover, the Typed LOC numbers are an upper bound on the annotations required
+Moreover, the Type Annotation LOC numbers are an upper bound on the annotations required
 at any stage of gradual typing because each typed module in our experiment
 fully annotates its import statements. In practice, only imports from untyped
 modules require annotation.
@@ -182,20 +182,20 @@ library (to divide lines of text across multiple columns) and uses two adaptor m
 \newcommand{\nopycket}{$\Circle$}
 \begin{tabular}[t]{lrrrrll}
 \toprule
-Project name          & \# Modules & Typed LOC & Untyped LOC & Other LOC & Module structure        \\
+Project name          & \# Modules & Untyped LOC & Type Ann. LOC & Other LOC & Module structure        \\
 \midrule
-\tt{sieve}            & 2          & 87        & 69          & 0         & \pict{sieve}      \\
-\tt{morse-code}       & 4          & 587       & 532         & 0         & \pict{morsecode}  \\
-\tt{mbta}             & 4          & 578       & 532         & 89        & \pict{mbta}       \\
-\tt{zo-traversal}     & 5          & 2121      & 1901        & 214       & \pict{zordoz}     \\
-\tt{suffixtree}       & 6          & 945       & 866         & 40        & \pict{suffixtree} \\
-\tt{lnm}              & 6          & 893       & 791         & 62        & \pict{lnm}        \\
-\tt{kcfa}             & 7          & 401       & 397         & 141       & \pict{kcfa}       \\
-\tt{snake}            & 8          & 271       & 214         & 27        & \pict{snake}      \\
-\tt{synth}            & 9          & 1112      & 964         & 33        & \pict{funkytown}  \\
-\tt{tetris}           & 9          & 500       & 457         & 38        & \pict{tetris}     \\
-\tt{gregor}           & 13         & 1574      & 1455        & 103       & \pict{gregor}     \\
-\tt{quad}             & 16         & 7702      & 7406        & 241       & \pict{quad}       \\
+\tt{sieve}            & 2          & 69          & 18        & 0         & \pict{sieve}      \\
+\tt{morse-code}       & 4          & 532         & 55        & 0         & \pict{morsecode}  \\
+\tt{mbta}             & 4          & 532         & 46        & 89        & \pict{mbta}       \\
+\tt{zo-traversal}     & 5          & 1901        & 220       & 214       & \pict{zordoz}     \\
+\tt{suffixtree}       & 6          & 866         & 79        & 40        & \pict{suffixtree} \\
+\tt{lnm}              & 6          & 791         & 102       & 62        & \pict{lnm}        \\
+\tt{kcfa}             & 7          & 397         & 4         & 141       & \pict{kcfa}       \\
+\tt{snake}            & 8          & 214         & 57        & 27        & \pict{snake}      \\
+\tt{synth}            & 9          & 964         & 148       & 33        & \pict{funkytown}  \\
+\tt{tetris}           & 9          & 457         & 43        & 38        & \pict{tetris}     \\
+\tt{gregor}           & 13         & 1455        & 119       & 103       & \pict{gregor}     \\
+\tt{quad}             & 16         & 7406        & 296       & 241       & \pict{quad}       \\
 \bottomrule
 \end{tabular}
 }|
