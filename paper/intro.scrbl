@@ -87,7 +87,7 @@ Section@secref{sec:fwk} explains the performance framework in detail,
  including the information we retrieve from the lattices and how we
  parameterize these retrievals. Next, section@secref{sec:bm} presents our
  specific benchmarks. Section@secref{sec:tr} @; and@secref{sec:trp}
- the numeric results.
+ presents the numeric results.
 @;  of evaluating Typed Racket's original
 @;  implementation and the Pycket variant,
 @; respectively. 
