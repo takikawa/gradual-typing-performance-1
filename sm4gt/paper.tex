@@ -1,0 +1,60 @@
+\documentclass[9pt]{sigplanconf}
+\newcommand{\tr}[2][]{#1}
+\tr[
+\let\techrep=\comment
+\let\endtechrep=\endcomment
+\newenvironment{paper}{}{}
+]{
+\newenvironment{techrep}{}{}
+\let\paper=\comment
+\let\endpaper=\endcomment
+}
+\input{package}
+\input{def}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\title{Statistical Methods for Gradual Typing}
+\tr{\subtitle{Technical Report}}
+\authorinfo{Anon}{Anon Uni}{anon@anon.anon}
+
+\begin{document}
+\conferenceinfo{CONF,}{DATA, LOC}
+\CopyrightYear{2016}
+\copyrightdata{}
+\doi{}
+%\copyrightheight{1.2in}
+%\publicationlicense
+\maketitle
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+%\category{D.3.2}{Programming Languages}{}{}
+%\category{D.3.3}{Programming Languages}{}{}
+%\terms{}
+%\keywords{}
+
+\input{introduction}
+\input{objectives}
+\input{statistics}
+\input{evaluation}
+\input{alternatives}
+\input{related-work}
+\input{conclusion}
+\input{acks}
+
+\bibliographystyle{plain}
+\let\oldbibliography\thebibliography
+\renewcommand{\thebibliography}[1]{%
+  \oldbibliography{#1}%
+  \tr[\setlength{\itemsep}{1.7pt}]{}%
+}
+\bibliography{sm4gt}
+
+%\begin{techrep}
+%\input{appendix}
+%\end{techrep}
+
+\end{document}
