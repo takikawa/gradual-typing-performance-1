@@ -22,6 +22,7 @@
   (only-in racket/system system process)
   (only-in racket/string string-join string-split string-replace)
   (only-in racket/file copy-directory/files)
+  (only-in racket/port with-input-from-string)
 )
 
 ;; =============================================================================
@@ -188,6 +189,26 @@
    (fourth tag+id+to+val+from)
    (fifth  tag+id+to+val+from)))
 
+;; Parse a string "[TRACE:APPLY]    PATH-STRING    (Listof (Listof Index Symbol Symbol))"
+;;  into a contract log.
+;; These messages are printed when `#%app` is called in the file `PATH-STRING`.
+;; Each identifier used in the call to `#%app` is denoted in the List with
+;; - its position in the application (i.e., an Index. 0 is the special one)
+;; - a symbol, for the identifier
+;; - a symbol, for the identifier's source file (from the perspective of PATH-STRING)
+(define (trace-string->contract-log* sym line)
+  (define tag+here+there* (string-split line "\t"))
+  (define to (second tag+here+there*))
+  (with-input-from-string (third tag+here+there*)
+    (lambda ()
+      (for/list ([pos+val+from (in-list (read))])
+      (contract-log
+       sym
+       (first pos+val+from) ;; NOT UNIQUE, but a convenient way to remember app positions
+       to
+       (second pos+val+from)
+       (third pos+val+from))))))
+
 ;; If `line` is a message logging a new contract, return a `contract-log` struct
 ;; (: bg-create? (-> String (U ContractLog #f)))
 (define (bg-create? line)
@@ -204,6 +225,12 @@
    [(string-startswith? line "[BG:APPLY]")
     (string->contract-log 'create line)]
    [else #f]))
+
+;; True if the string `line` was output by an instrumented call to `#%app`
+(define (bg-trace-app? line)
+  (cond [(string-startswith? line "[TRACE:APPLY]")
+         (trace-string->contract-log* 'trace-apply line)]
+        [else #f]))
 
 ;; Add a new contract, represented by `clog`, to the map `cmap`.
 ;; (: add-contract (-> ContractUsageMap (-> ContractLog Void)))
@@ -254,6 +281,19 @@
        [else
         (hash-set! to-hash val (add1 val-count))])])]))
 
+;; Add or update the contract map with the contract log
+;; (: add-or-update-contract* (-> ContractUsageMap (Listof ContractLog) Void))
+(define (add-or-update-contract* cmap clog*)
+  ;; (when (or (not clog*) (null? clog*))
+  ;;   (debug 2 "Ignoring line (sorry this is a poor message)"))
+  (when clog*
+    (for ([clog (in-list clog*)])
+      ;; Update, or add new to `cm` map
+      ;; ... with-handler is not really a nice way to do this
+      (with-handlers ([exn:fail? ;; How to catch just missing-key?
+                       (lambda (exn) ((add-contract cmap) clog))])
+        ((update-contract cmap) clog)))))
+
 ;; -----------------------------------------------------------------------------
 ;; -- show (display parsed logging information -- show me what the contracts did)
 
@@ -286,6 +326,7 @@
     (sort
      (for/list ([(val count) (in-hash id->nat)]) (boundary from to val count))
      boundary>?)))
+
 ;; Informal documentation for output .rktd files.
 ;; Belongs at the top of these printed files.
 (define DATA-FORMAT
@@ -359,6 +400,18 @@
   (format "[~a => ~a] value '~a' checked ~a times" from to val checks))
 
 ;; -----------------------------------------------------------------------------
+;; TODO all hacks
+
+;; Read the shit from this file, make a contract map
+(define (hack-process-file in-file)
+  (define cm (make-hash '()))
+  ;; -- build a contract map
+  (with-input-from-file in-file
+    (for ([line (in-lines)])
+      (add-or-update-contract* cm (bg-trace-app? line))))
+  cm)
+
+;; -----------------------------------------------------------------------------
 ;; -- main
 
 ;; Database of contracts created & used during program execution
@@ -375,7 +428,7 @@
 ;; collect run-time contract information (num created & used)
 ;; return a map of results
 ;; (: collect-contract (-> Path-String ContractUsageMap))
-(define (collect-contract parent-dir)
+(define (collect-contract parent-dir #:app? [app? #f])
   (debug 1 "Checking preconditions for '~a'..." parent-dir)
   ;; Prepare the fully-typed configuration
   (define num-modules (get-num-modules parent-dir))
@@ -396,13 +449,16 @@
     (match-define (list stdout stdin pid stderr ping) (process "racket main.rkt"))
     ;; Collect the results in a map
     (for ([line (in-lines stdout)])
-      (cond
-       [(bg-create? line) => add-contract/log]
-       [(bg-apply?  line) => update-contract/log]
-       [else (debug 2 "Ignoring line '~a'" line)]))
+      (if app?
+          (add-or-update-contract* contract-log (bg-trace-app? line))
+          (cond
+           [(bg-create? line) => add-contract/log]
+           [(bg-apply?  line) => update-contract/log]
+           [else (debug 2 "Ignoring line '~a'" line)])))
     (close-input-port stdout)
     (close-output-port stdin)
     (close-input-port stderr))
+  (debug 1 "Finished running! Returning contract map with ~a items" (hash-count contract-log))
   contract-log)
 
 ;; Display aggregate stats about the contracts
@@ -412,19 +468,23 @@
   (define num-contracts (count-contracts cmap))
   (define num-checks (count-checks cmap))
   (define worst-boundaries (filter-worst-boundaries cmap #:valid-filename? valid?))
-  (match-define (boundary wfrom wto wval wchecks) (car worst-boundaries))
-  (define worst-total-contracts (count-contracts cmap #:from wfrom #:to wto))
-  (define worst-total-checks (count-checks cmap #:from wfrom #:to wto))
-  ;; Print the all things to file
-  (when out-opt
-    (with-output-to-file out-opt #:exists 'replace
-      (lambda () (displayln DATA-FORMAT) (write (all-boundaries cmap)))))
-  ;; Print the light things to the console.
-  (printf "\nResults\n=======\n")
-  (printf "Created ~a contracts\n" num-contracts)
-  (printf "Checked contracts ~a times\n" num-checks)
-  (printf "The worst boundary (~a -> ~a) created ~a contracts and caused ~a checks\n" wfrom wto worst-total-contracts worst-total-checks)
-  (printf "Worst values, for each boundary:\n- ~a\n" (string-join (map format-boundary worst-boundaries) "\n- ")))
+  (cond
+   [(null? worst-boundaries)
+    (debug 1 "Did not observe any contract boundaries at runtime. Shutting down.\n")]
+   [else
+    (match-define (boundary wfrom wto wval wchecks) (car worst-boundaries))
+    (define worst-total-contracts (count-contracts cmap #:from wfrom #:to wto))
+    (define worst-total-checks (count-checks cmap #:from wfrom #:to wto))
+    ;; Print the all things to file
+    (when out-opt
+      (with-output-to-file out-opt #:exists 'replace
+                           (lambda () (displayln DATA-FORMAT) (write (all-boundaries cmap)))))
+    ;; Print the light things to the console.
+    (printf "\nResults\n=======\n")
+    (printf "Created ~a contracts\n" num-contracts)
+    (printf "Checked contracts ~a times\n" num-checks)
+    (printf "The worst boundary (~a -> ~a) created ~a contracts and caused ~a checks\n" wfrom wto worst-total-contracts worst-total-checks)
+    (printf "Worst values, for each boundary:\n- ~a\n" (string-join (map format-boundary worst-boundaries) "\n- "))]))
 
 ;; =============================================================================
 ;; Usage: `racket trace-run.rkt PROJECT-DIR`
@@ -432,7 +492,9 @@
 (module+ main
   (require racket/cmdline)
   ;; -- parameters
+  (define app? (make-parameter #f))
   (define output-path (make-parameter #f))
+  (define in-file (make-parameter #f))
   (define (set-param/contract val #:param p #:contract c)
     (unless (c val)
       (arg-error "Expected a '~a', got '~a'" c val))
@@ -441,21 +503,34 @@
   (command-line
    #:program "trace-run"
    #:once-each
+   [("-a" "--app") "HACK Do app-style checks." (app? #t)]
+   ;; TODO instead of app,
    [("-o" "--output") o-p
                       "A path to write output to"
                       (set-param/contract o-p #:param output-path #:contract path-string?)]
+   [("-f" "--file") f-p "HACK, if given just process this file" (set-param/contract f-p #:param in-file #:contract path-string?)]
    #:args (parent-dir)
-    (begin
+   (cond
+    [(in-file)
+     (define cm (hack-process-file (in-file)))
+     ;; -- print the contract map
+     (show-contract cm #:output-file (output-path))]
+    [else
       (ensure-hacked-racket)
       (ensure-preconditions parent-dir)
       (ensure-directory (format "~a/benchmark" parent-dir))
       (ensure-directory (format "~a/benchmark/base" parent-dir)
                         #:fill-with (in-glob (format "~a/base/*" parent-dir)))
       ;; -- run the project, collect contract information
-      (define contract-set (collect-contract parent-dir))
+      (define contract-set
+        (if (app?)
+            (collect-contract parent-dir #:app? #t)
+            (collect-contract parent-dir)))
       (define module-names (get-module-names parent-dir))
       ;; -- print a summary of the collected information
-      (define (valid-filename? fn) (member fn module-names filename=?/adapted))
+      (define valid-filename?
+        (and (not (app?))
+             (lambda (fn) (member fn module-names filename=?/adapted))))
       (show-contract contract-set
                      #:output-file (output-path)
-                     #:valid-filename? valid-filename?))))
+                     #:valid-filename? valid-filename?)])))
