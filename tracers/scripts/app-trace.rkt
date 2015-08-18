@@ -42,64 +42,67 @@
      (error 'provide/trace (format "Bad syntax, no idea what might've happened here. Original was '~a'" stx))]))
 
 ;; -----------------------------------------------------------------------------
-(define-for-syntax GLOBAL_LOGFILE "/home/ben/Downloads/trace.log")
+(begin-for-syntax
 
-;; Search the global provide/trace identifier table for `id`.
-;; Use the symbol & syntax properties of id to do the lookup.
-(define-for-syntax (lookup? id)
-  (with-input-from-file GLOBAL_LOGFILE
-    (lambda ()
-      (define id-list (id->list id))
-      (for/or ([ln (in-lines)])
-        (idlog=? id-list (line->list ln))))))
+  (define GLOBAL_LOGFILE "/tmp/trace.log")
 
-(define-for-syntax (line->list ln)
-  (string-split ln "\t"))
+  ;; Search the global provide/trace identifier table for `id`.
+  ;; Use the symbol & syntax properties of id to do the lookup.
+  (define (lookup? id)
+    (with-input-from-file GLOBAL_LOGFILE
+      (lambda ()
+        (define id-list (id->list id))
+        (for/or ([ln (in-lines)])
+          (idlog=? id-list (line->list ln))))))
 
-;; Register a list of variables
-;; Save anything needed to later identify each var, along with a message.
-(define-for-syntax (register-all id*)
-  (with-output-to-file GLOBAL_LOGFILE #:exists 'append
-    (lambda ()
-      (for ([id (in-list id*)])
-        (displayln (string-join (id->list id) "\t"))))))
+  (define (line->list ln)
+    (string-split ln "\t"))
 
-(define-for-syntax (id->list id)
-  (list (format "~a" (syntax->datum id))
-        (format "~a" (syntax-source id))
-        (format "~a" (identifier-binding id))))
+  ;; Register a list of variables
+  ;; Save anything needed to later identify each var, along with a message.
+  (define (register-all id*)
+    (with-output-to-file GLOBAL_LOGFILE #:exists 'append
+      (lambda ()
+        (for ([id (in-list id*)])
+          (displayln (string-join (id->list id) "\t"))))))
 
-;; Compare two list versions identifiers
-(define-for-syntax (idlog=? a b)
-  (and (string=? (car a) (car b))
-       (string=? (binding-module a)
-                 (binding-module b))))
+  (define (id->list id)
+    (list (format "~a" (syntax->datum id))
+          (format "~a" (syntax-source id))
+          (format "~a" (identifier-binding id))))
 
-;; (: binding-module (-> (List String String String) String))
-(define-for-syntax (binding-module x)
-  (or (mpi->mod (caddr x))
-      (rsplit #\/ (cadr x))))
+  ;; Compare two list versions identifiers
+  (define (idlog=? a b)
+    (and (string=? (car a) (car b))
+         (string=? (binding-module a)
+                   (binding-module b))))
 
-(define-for-syntax mpi-pat (regexp "^\\(#<module-path-index:\\(\"(.*?)\"\\)>"))
-(define-for-syntax (mpi->mod x)
-  (let ([m (regexp-match mpi-pat x)])
-    (and m
-         (let ([s (cadr m)])
-           (and (not (string=? "" s))
-                s)))))
+  ;; (: binding-module (-> (List String String String) String))
+  (define (binding-module x)
+    (or (mpi->mod (caddr x))
+        (rsplit #\/ (cadr x))))
 
-(define-for-syntax (last x*)
-  (if (null? (cdr x*))
-      (car x*)
-      (last (cdr x*))))
+  (define mpi-pat (regexp "^\\(#<module-path-index:\\(\"(.*?)\"\\)>"))
+  (define (mpi->mod x)
+    (let ([m (regexp-match mpi-pat x)])
+      (and m
+           (let ([s (cadr m)])
+             (and (not (string=? "" s))
+                  s)))))
 
-(define-for-syntax (rindex c str)
-  (for/fold ([acc #f])
-      ([c2 (in-string str)]
-       [i (in-naturals)])
-    (if (char=? c c2)
-        i
-        acc)))
+  (define (last x*)
+    (if (null? (cdr x*))
+        (car x*)
+        (last (cdr x*))))
 
-(define-for-syntax (rsplit c str)
-  (substring str (add1 (or (rindex c str) -1))))
+  (define (rindex c str)
+    (for/fold ([acc #f])
+        ([c2 (in-string str)]
+         [i (in-naturals)])
+      (if (char=? c c2)
+          i
+          acc)))
+
+  (define (rsplit c str)
+    (substring str (add1 (or (rindex c str) -1))))
+)
