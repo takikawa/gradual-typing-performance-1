@@ -7,8 +7,9 @@
 (define (main)
   (define y (+ 1 (car xs)))
   (define z (f (list 1 2 3)))
+  (f (list 9 9 9 9))
   (set-box! b -2)
-  (set-box! b 42))
-  ;(void))
+  (set-box! b 42)
+  (void))
 
 (main)
