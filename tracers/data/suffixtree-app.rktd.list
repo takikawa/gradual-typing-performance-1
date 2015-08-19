@@ -1,0 +1,15 @@
+Results for 'data/suffixtree-app.rktd'
+======================================
+  41 contracts generated
+  141516152 total checks
+* Boundary from 'ukkonen.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/ukkonen.rkt' created 4 contracts (10%) and caused 8821158 checks (6%)
+* Boundary from 'ukkonen.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt' created 1 contracts (2%) and caused 48671 checks (0%)
+* Boundary from 'lcs.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/main.rkt' created 1 contracts (2%) and caused 24335 checks (0%)
+* Boundary from 'lcs.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt' created 2 contracts (5%) and caused 48670 checks (0%)
+* Boundary from 'structs.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/ukkonen.rkt' created 6 contracts (15%) and caused 15339489 checks (11%)
+* Boundary from 'structs.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/structs.rkt' created 2 contracts (5%) and caused 745043 checks (1%)
+* Boundary from 'structs.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt' created 2 contracts (5%) and caused 48670 checks (0%)
+* Boundary from 'label.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/structs.rkt' created 6 contracts (15%) and caused 83063957 checks (59%)
+* Boundary from 'label.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/ukkonen.rkt' created 4 contracts (10%) and caused 14472201 checks (10%)
+* Boundary from 'label.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/label.rkt' created 7 contracts (17%) and caused 12085664 checks (9%)
+* Boundary from 'label.rkt' to '/home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt' created 6 contracts (15%) and caused 6818294 checks (5%)

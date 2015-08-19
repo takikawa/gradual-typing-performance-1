@@ -71,7 +71,7 @@
     (define num-contracts (length vals))
     (define pct-contracts (round (* 100 (/ num-contracts total-contracts))))
     (define pct-checks (round (* 100 (/ num-checks total-checks))))
-    (when (< 10 pct-checks) ;(< 0 num-checks)
+    (when (< 0 num-checks) ;(< 10 pct-checks)
       (printf "* Boundary from '~a' to '~a' created ~a contracts (~a%) and caused ~a checks (~a%)\n" from to num-contracts pct-contracts num-checks pct-checks))))
 
 ;; =============================================================================

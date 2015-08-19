@@ -1,0 +1,17 @@
+Results
+=======
+Created 41 contracts
+Checked contracts 141516152 times
+The worst boundary (label.rkt -> /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/structs.rkt) created 6 contracts and caused 83063957 checks
+Worst values, for each boundary:
+- [label.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/structs.rkt] value 'label-ref' checked 37471998 times
+- [label.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/label.rkt] value 'label-length' checked 9235328 times
+- [structs.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/ukkonen.rkt] value 'node-position-at-end?' checked 6663932 times
+- [label.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/ukkonen.rkt] value 'label-ref' checked 6052521 times
+- [label.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt] value 'label-source-eq?' checked 3705311 times
+- [ukkonen.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/ukkonen.rkt] value 'try-to-set-suffix-edge!' checked 3409209 times
+- [structs.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/structs.rkt] value 'node-add-leaf!' checked 694403 times
+- [ukkonen.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt] value 'tree-add!' checked 48671 times
+- [lcs.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/main.rkt] value 'longest-common-substring' checked 24335 times
+- [lcs.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt] value 'longest-common-sublabel' checked 24335 times
+- [structs.rkt => /home/ben/code/racket/benchmark/gradual-typing-performance/tracers/benchmark/suffixtree/benchmark/variation111111/lcs.rkt] value 'make-tree' checked 24335 times
