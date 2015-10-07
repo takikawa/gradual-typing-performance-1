@@ -337,6 +337,8 @@
   (define hspace (/ width 4))
   (define vpad (/ height 5))
   (define baseline (untyped-mean sm))
+  (when (zero? baseline)
+    (raise-user-error 'summary "Untyped mean is 0ms. Cannot produce summary figures."))
   (define numvars (get-num-variations sm))
   (: round2 (-> Real String))
   (define (round2 n) (string-append (~r n #:precision (list '= 2)) "x"))
