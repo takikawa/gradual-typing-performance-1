@@ -92,54 +92,22 @@ Project name          & \# Modules & \twoline{Untyped}{LOC} & \twoline{Type Ann.
 
 @section{Adaptor Modules}
 
-To facilitate our experiment, we manually add @emph{type adaptor modules}
-to some of the programs. Adaptor modules are specialized typed interfaces to
-untyped code that are used when an untyped data definition and the data's
-typed clients are part of the same configuration. Our experimental setup
-makes this necessary since some configurations will leave data modules
-untyped but will use typed client modules.
-The adaptor is itself a typed module and exports type annotated versions
-of all bindings from the untyped data definition.
-Typed clients are set up to import exclusively from the type adaptor, bypassing the
-original data definition.
-Untyped clients continue to use the original untyped file.
+When an untyped data structure crosses a boundary into typed code,
+Typed Racket generates a new type definition for the structure based on annotations in the
+importing module.
+If two typed modules import the same untyped data structure, then each import
+will generate a unique type definition.
+Even if the typed modules use identical type annotations, the generated types
+are incompatible.
 
-@figure["fig:adaptor" "Inserting a type adaptor"
-@exact|{
-\includegraphics[scale=0.25]{module-graphs/adaptor1.png}
-\hspace{1cm}
-\includegraphics[scale=0.25]{module-graphs/adaptor2.png}
-}|
-]
-
-Instead of using an adaptor module, each typed client module could duplicate
-the type annotations for the data definitions. This does not work, however,
-for the generative structure types (record type definitions) that are
-ubiquitous in Racket code.
-@Figure-ref{fig:adaptor} illustrates this problem.
-In this context, @emph{generative} means that two
-declarations of the same structure yield distinct datatypes. This carries over to
-type-annotated structures for typed modules, meaning that annotating the same
-structure twice will yield incompatible static type definitions.
-
-@;{
-Strictly speaking, type adaptor modules are not necessary.
-It is possible to modify the design of imports for any given configuration so
-that a single typed module declares and re-exports type annotations for untyped
-data.
-This alternative presents a non-trivial challenge, however,
-when trying to synthesize the @math{2^n} gradually-typed configurations from
-a fully-untyped and fully-typed version of each benchmark.
-}
-
-Using an adaptor ensures that only one canonical type is
-generated for each structure, as illustrated in the right half of
-@figure-ref{fig:adaptor}. Adaptors also
-reduce the number of type annotations needed at boundaries because all typed
-clients can reference a single point of control.@note{In our experimental
-framework, type adaptors are available to all configurations as library files.}
-Therefore we expect type adaptor modules to be of independent use to
-practitioners, rather than just a synthetic byproduct of our setup.
+These generative type definitions pose a challenge when testing all gradually-typed configurations of a program.
+Some configurations need to be refactored to ensure that typed code sharing untyped
+data references a common set of type definitions.
+We perform this refactoring uniformly by introducing so-called @emph{type adaptor modules}.
+An adaptor is a collection of type annotations.
+Typed modules reference these annotations rather than declaring their own.
+In the context of our method, adaptors are available as library files to all configurations
+in a performance lattice.
 
 
 @section{Program Descriptions}

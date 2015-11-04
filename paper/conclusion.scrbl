@@ -70,6 +70,6 @@ our artifact: @linebreak[]@linebreak[] @hspace[1]
 The authors gratefully acknowledge support from the National Science
 Foundation (SHF 1518844). They also thank Matthew Butterick, John Clements,
 Matthew Might, Vincent St-Amour, Neil Toronto, David Van Horn, Danny Yoo, and Jon
-Zeppieri for providing benchmark code bases. Brian LaChance and Sam
+Zeppieri for providing benchmark code bases. Brian LaChance, Sarah Lee, and Sam
 Tobin-Hochstadt provided valuable feedback on earlier drafts.
 
